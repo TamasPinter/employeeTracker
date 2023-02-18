@@ -3,15 +3,14 @@ VALUES (1, 'Engeneering'),
        (2, 'Sales'),
        (3, 'Finance'),
        (4, 'Development'),
-       (5, 'Custodial');
 
-INSERT INTO Role (id, title, salary, department_id)
+INSERT INTO Roles (id, title, salary, department_id)
 VALUES (1, 'Supervisor', 150000, 1),
        (2, 'Team_Lead', 100000, 2),
        (3, 'Senior_Employee', 85000, 3),
        (4, 'General_Employee', 60000, 4);
 
-INSERT INTO Employee (id, first_name, last_name, role_id, manager_id)
+INSERT INTO Employee (id, first_name, last_name, roles_id, manager_id)
 VALUES (1, 'Mike', 'Willice', 1, NULL),
        (2, 'Joe', 'Connors', 1, NULL),
        (3, 'Sally', 'Fields', 1, NULL),
