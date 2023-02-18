@@ -13,17 +13,27 @@ from Employee
 inner join Role on Employee.role_id = Role.id
 inner join Department on Role.department_id = Department.id
 inner join Employee manager on Employee.manager_id = manager.id;
+
 --add a department --
 --enter name of new department--
+Insert into Department (name)
+Values ('(name)');
 
 --add a role --
 --enter name, salary, department id--
+Insert into Role (title, salary, department_id)
+Values ('(title)', '(salary)', '(department_id)');
 
 --add an employee--
 --enter first name, last name, role, manager id--
+INSERT INTO Employee (first_name, last_name, role_id, manager_id)
+VALUES ('(first_name)', '(last_name)', '(role_id)', '(manager_id)');
 
 --update employee role --
 --enter employee id, new role id--
+UPDATE Employee
+SET role_id = '(role_id)'
+WHERE id = '(id)'; --figure this out later--
 
 --update employee manager--
 --enter employee id, new manager id--
@@ -33,7 +43,12 @@ inner join Employee manager on Employee.manager_id = manager.id;
 --show employees by department--
 
 --delete roles--
+DELETE FROM Role WHERE id='(id)';
+
 --delete department--
+DELETE FROM Department WHERE name='(name)';
+
 --delete employee--
+DELETE FROM Employee WHERE id='(id)';
 
 --view salary by department--
