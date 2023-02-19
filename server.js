@@ -4,7 +4,7 @@ const app = express();
 const cTable = require('console.table');
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
-const db = require('./db/connection');
+
 
 const port = process.env.PORT || 3000;
 app.use(express.urlencoded({ extended: false }));
@@ -14,7 +14,7 @@ let connection;
 
 // Connect to database
 async function connect() {
-    connection = await mysql.createConnection({
+    connection = mysql.createConnection({
         host: 'localhost',
         // MySQL Username
         user: 'root',
@@ -28,7 +28,7 @@ async function connect() {
 // View all Departments
 const viewAllDepartments = async () => {
     try {
-        const results = await connection.query('SELECT d.id AS "Dept. ID", d.name AS "Dept. Name" FROM Department d');
+        const results = connection.query('SELECT d.id AS "Dept. ID", d.name AS "Dept. Name" FROM Department d');
         console.log('\n', '\x1b[36m', '---------Department List---------', '\x1b[0m', '\n');
         console.table(results[0]);
         console.log('\n', '\x1b[32m', '---------------End Departments-----------', '\x1b[0m', '\n');
@@ -224,7 +224,7 @@ try {
 menuMain();
 };
 
-const epdateEmployeeRole = async () => {
+const updateEmployeeRole = async () => {
     let employees;
     let empChoices;
     let empRoles;
@@ -273,6 +273,62 @@ try {
 };
 };
 
+const menuMain = async () => {
+    const mainMenu = [
+        {
+            name: "menuchoices",
+            type: "list",
+            message: "What would you like to do?",
+            choices: [
+                "View All Departments",
+                "View All Employees",
+                "View All Roles",
+                "Add a Department",
+                "Add a Role",
+                "Add an Employee",
+                "Update Employee Role",
+                new inquirer.Separator(),
+                "Quit",
+                new inquirer.Separator(),
+            ]
+        }
+    ];
+    const resp = await inquirer.prompt(mainMenu);
+    switch (resp.menuchoices) {
+        case 'View All Departments':
+            viewAllDepartments();
+            break;
+        case 'View All Employees':
+            viewAllEmployees();
+            break;
+        case 'View All Roles':
+            viewAllRoles();
+            break;
+        case 'Add a Department':
+            addDepartment();
+            break;
+        case "Add a Role":
+            addRoles();
+            break;
+        case "Add an Employee":
+            addEmployee();
+            break;
+        case "Update Employee Role":
+            updateEmployeeRole();
+            break;
+        case "Quit":
+            quitApp();
+    }
+};
 
+const quitApp = () => {
+    console.log(`\n\x1b[32mGoodbye!\x1b[0m\n`);
+    process.exit();
+};
 
-}
+const initApp = async () => {
+    await connect();
+    menuMain();
+};
+
+initApp();
