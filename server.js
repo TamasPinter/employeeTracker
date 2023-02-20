@@ -27,57 +27,98 @@ async function connect() {
 
 // View all Departments
 const viewAllDepartments = async () => {
-    try {
-        const results = connection.query('SELECT d.id AS "Dept. ID", d.name AS "Dept. Name" FROM Department d');
-        console.log('\n', '\x1b[36m', '---------Department List---------', '\x1b[0m', '\n');
-        console.table(results[0]);
-        console.log('\n', '\x1b[32m', '---------------End Departments-----------', '\x1b[0m', '\n');
-    }
-    catch (err) {
-        console.log(`ERROR - ${err}`);
-    }
+    connection.query('SELECT id AS "Dept. ID", name AS "Dept. Name" FROM Department ', function (err, results) {
+        if (err) {
+            console.log(`ERROR - ${err}`);
+        } else {
+            console.log('\n', '\x1b[36m', '---------Department List---------', '\x1b[0m', '\n');
+            console.table(results);
+            console.log('\n', '\x1b[32m', '---------------End Departments-----------', '\x1b[0m', '\n');
+        }
+    });
     menuMain(); // Return to main menu
 };
 
+
     //View all Roles
 const viewAllRoles = async () => {
-    const query = `SELECT d.name AS "Department", r.title AS "Roles", r.id AS "Roles ID#", r.salary AS "Salary" FROM Roles r JOIN department d ON r.department_id = d.id;`
-        try {
-            const results = await connection.query(query);
+    connection.query('SELECT Roles.title AS "Roles", Roles.id AS "Roles ID#", Roles.salary AS "Salary" FROM Roles', function (err, results) {
+        if (err) {
+            console.log(`Error - ${err}`);
+        } else {
             console.log('\n', '\x1b[36m', '---------Roles List---------', '\x1b[0m', '\n');
-            console.table(results[0]);
+            console.table(results);
             console.log('\n', '\x1b[32m', '---------------End Roles-----------', '\x1b[0m', '\n');
-        } catch (err) {
-            console.log(`ERROR - ${err}`);
-        };
-    menuMain();
-};
+        }
+        });
+        menuMain();
+    }
+
 
 const viewAllEmployees = async () => {
-    const query = `SELECT em.id AS "Employee Id#", em.first_name AS "First Name", em.last_name AS "Last Name", r.title AS "Title", d.name AS "Department", r.salary AS "Salary", CONCAT(IFNULL(mgr.first_name, ''), ' ', IFNULL(mgr.last_name, '')) AS "Manager"
-    FROM Employee em
-    LEFT JOIN Roles r
-    ON em.roles_id = r.id
-    LEFT JOIN Department d
-    ON d.id = r.department_id
-    LEFT JOIN Employee mgr
-    ON mgr.id = em.manager_id;`
-    try {
-        const results = await connection.query(query);
-        console.log('\n', '\x1b[36m', '---------Employee List---------', '\x1b[0m', '\n');
-        console.table(results[0]);
-        console.log('\n', '\x1b[32m', '---------------End Employees-----------', '\x1b[0m', '\n');
-    } catch (err) {
-        console.log(`ERROR - ${err}`);
-    };
+   connection.query('SELECT em.id AS "Employee Id#", em.first_name AS "First Name", em.last_name AS "Last Name", r.title AS "Title", d.name AS "Department", r.salary AS "Salary", CONCAT(IFNULL(mgr.first_name, " "), " " , IFNULL(mgr.last_name, " ")) AS "Manager", mgr.id AS "Manager _d#" FROM Employee em LEFT JOIN Roles r ON em.roles_id = r.id LEFT JOIN Department d ON d.id = r.department_id LEFT JOIN Employee mgr ON mgr.id = em.manager_id;', function (err, results) {
+        if (err) {
+            console.log(`ERROR - ${err}`);
+        } else {
+            console.log('\n', '\x1b[36m', '---------Employee List---------', '\x1b[0m', '\n');
+            console.table(results);
+            console.log('\n', '\x1b[32m', '---------------End Employees-----------', '\x1b[0m', '\n');
+        }
+    });
     menuMain();
 };
+   
 
 const addDepartment = async () => {
-    let deptExists;
     let deptArray = [];
+    let name;
     //retriever departments
-    try {
+    connection.query('SELECT department.name FROM Department', function (err, results) {
+        if (err) {
+            console.log(`ERROR - ${err}`);
+        } else {
+            results.forEach((name) => {
+                deptArray.push(name.name);
+            });
+        }
+        console.log('\n', '\x1b[36m', '---------Existing Departments---------', '\x1b[0m', '\n');
+        deptArray.forEach((name) => {
+            console.table(name);
+        })
+        console.log('\n', '\x1b[32m', '---------------End Departments-----------', '\x1b[0m', '\n');
+    });
+   
+    //prompt user for new department
+    resp = await inquirer.prompt(
+        [
+            {
+                name: 'newDept',
+                type: 'input',
+                message: 'Enter new Department name: ',
+                validate(value) {
+                    const test = deptArray.includes(value);
+                    if (test) {
+                        return 'Department already exists.'
+                    } else {
+                        return true;
+                    }
+                    }
+                }
+            ]
+    ).then((resp) => {
+        connection.query('INSERT INTO Department SET ?', { name: resp.newDept }, function (err, results) {
+            if (err) {
+                console.log(`ERROR - ${err}`);
+            } else {
+                console.log(`Department ${resp.newDept} added successfully.`);
+            }
+        });
+        
+    });
+    menuMain();
+        };
+
+    /*try {
         deptExists = await connection.query('SELECT name FROM Department');
         //validate if department exists
         deptExists[0].forEach((names) => {
@@ -120,7 +161,7 @@ const addDepartment = async () => {
         console.log(`ERROR - ${err}`);
     };
     menuMain();
-};
+};*/
 
 const addRoles = async () => {
     let deptList;
