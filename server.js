@@ -42,7 +42,7 @@ const viewAllDepartments = async () => {
 
     //View all Roles
 const viewAllRoles = async () => {
-    connection.query('SELECT Roles.title AS "Roles", Roles.id AS "Roles ID#", Roles.salary AS "Salary" FROM Roles', function (err, results) {
+    connection.query('SELECT Roles.id AS "Roles ID#", Roles.title AS "Roles", Roles.department_id AS "Department ID#", Roles.salary AS "Salary" FROM Roles', function (err, results) {
         if (err) {
             console.log(`Error - ${err}`);
         } else {
@@ -118,93 +118,70 @@ const addDepartment = async () => {
     menuMain();
         };
 
-    /*try {
-        deptExists = await connection.query('SELECT name FROM Department');
-        //validate if department exists
-        deptExists[0].forEach((names) => {
-            deptArray.push(names.name);
-        });
-    } catch(err) {
-        console.log(`ERROR - ${err}`);
-    };
-    console.log('\n', '\x1b[36m', '---------Existing Departments---------', '\x1b[0m', '\n');
-    depArray.forEach((department) => {
-        console.log(department);
-    })
-    console.log('\n', '\x1b[32m', '---------------End Departments-----------', '\x1b[0m', '\n');
-    //prompt user for new department
-    resp = await inquirer.prompt(
-        [
-            {
-                name: 'newDept',
-                type: 'input',
-                message: 'Enter new Department name: ',
-                validate(value) {
-                    const test = deptArray.includes(value);
-                    if (test) {
-                        return 'Department already exists.'
-                    } else {
-                        return true;
-                    }
-                }
-            },
-        ]
-    );
-    //update department list
-    try {
-        const result = await connection.query('INSERT INTO Department SET ?',
-        {
-            name: resp.newDept,
-        });
-        console.log(`\n\x1b[32mDepartment ${resp.newDept} added.\x1b[0m\n`);
-    } catch (err) {
-        console.log(`ERROR - ${err}`);
-    };
-    menuMain();
-};*/
-
+  
 const addRoles = async () => {
-    let deptList;
+    let rolesList = [];
     let deptExist;
-    try {
-        deptExist = await connection.query('Select id, name FROM Department');
-        deptList = deptExist[0].map(({ id, name }) => ({ value: id, name: `${id} ${name} `}));
-    } catch(err) {
-        console.log(`ERROR - ${err}`);
+    let name;
+    connection.query('Select Roles.title FROM Roles', function (err, results) {
+        if (err) {
+            console.log(`ERROR - ${err}`);
+        } else {
+            results.forEach((name) => {
+               rolesList.push(name.name)
+        });
     }
-    let resp = await inquirer.prompt(
+    console.log('\n', '\x1b[36m', '---------Existing Roles---------', '\x1b[0m', '\n');
+   
+        console.table(results);
+    
+        console.log('\n', '\x1b[32m', '---------------End Roles-----------', '\x1b[0m', '\n');
+    });
+        //prompt user for new role
+     
+    resp = await inquirer.prompt(
         [
             {
                 name: "roleTitle",
                 type: "input",
-                message: "Enter the name of the new role: "
+                message: "Enter the name of the new role: ",
+                validate(value) {
+                    const test = rolesList.includes(value);
+                    if (test) {
+                        return 'Role already exists.'
+                    } else {
+                        return true;
+                    }
+                    }
             }, 
-            {
-                name: "roleSalary",
-                type: "input",
-                message: "What is the salary?"
-            },
             {
                 name: "selectedDept",
                 type: "list",
                 message: "Which department does this role belong to?",
-                choices: deptList
+                choices: [1,2,3,4]
+            },
+            {
+                name: "roleSalary",
+                type: "input",
+                message: "What is the salary?"
+                
             }
         ]
-    );
+    )
     //update roles
-    try {
-        const result = await connection.query(`INSERT INTO Roles SET ?`, {
-            title: resp.rolesTitle,
-            salary: resp.roleSalary,
-            department_id: resp.selectedDept
+    .then((resp) => {
+        connection.query('INSERT INTO Roles SET ?', { title: resp.roleTitle, department_id: resp.selectedDept, salary: resp.roleSalary }, function (err, results) {
+            if (err) {
+                console.log(`ERROR - ${err}`);
+            } else {
+                console.log(`Role ${resp.roleTitle, resp.roleSalary, resp.selectedDept} added successfully.`);
+            }
         });
-    } catch(err) {
-        console.log(`ERROR - ${err}`);
-    };
-    console.log(`n, \x1b[32m, Role ${resp.roleTitle} added to ${resp.selectedDept}.\x1b[0m, \n`);
+    });
+    
     menuMain();
 };
+
 
 const addEmployee = async () => {
     let managers;
