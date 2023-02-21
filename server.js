@@ -306,7 +306,69 @@ addEmployee = () => {
 };
 
 updateEmployee = () => {
-    
+    const employeeSql = `SELECT * FROM employee`;
+    connection.query(employeeSql, (err, data) => {
+        if (err) throw err;
+
+        const employees = data.map(({ id, first_name, last_name }) => ({ name: first_name + " "+ last_name, value: id}));
+
+        inquirer.prompt(
+            [
+                {
+                    type: 'list',
+                    name: 'name',
+                    message: "Which employee would you like to update?",
+                    choices: employees
+                }
+            ]
+        )
+        .then(empChoice => {
+            const employee = empChoice.name;
+            const params = {};
+            params.push(employee);
+
+            const roleSql = `SELECT * FROM roles`;
+            connection.query(roleSql, (err, data) => {
+                if (err) throw err;
+
+                const roles = data.map(({ id, title }) => ({ name: title, value: id }));
+
+                inquirer.prompt (
+                    [
+                        {
+                            type: 'list',
+                            name: 'role',
+                            message: "What is the employee's new role?",
+                            choices: roles
+                        }
+                    ]
+                )
+                .then(roleChoice => {
+                    const role = rleChoice.role;
+                    params.push(role);
+
+                    let employee = params[0]
+                    params[0] = role
+                    params[1] = employee
+
+                    const sql = `UPDATE employee SET roles_id = ? WHERE id = ?`;
+                    connection.query(sql, params, (err, result) => {
+                        if (err) throw err;
+                        console.log("The employee has been updated!");
+                        viewEmployees();
+                    });
+                });
+            });
+        });
+    });
+};
+
+updateManager = () => {
+    const employeeSql = `SELECT * FROM employee`;
+    connection.query(employeeSql, (err, data) => {
+        if (err) throw err;
+        
+    })
 }
 /*let connection;
 
