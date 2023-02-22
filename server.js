@@ -1,4 +1,3 @@
-
 const cTable = require('console.table');
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
@@ -6,13 +5,12 @@ require('dotenv').config();
 
 const port = process.env.PORT || 3000;
 
-
 const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: process.env.password,
     database: 'HumanResources'
-});
+});   
 
 connection.connect(err => {
     if (err) throw err;
@@ -20,7 +18,9 @@ connection.connect(err => {
     menuMain();
 });
 
-const menuMain = () => {
+const menuMain = () => {    
+                                                  
+ 
     inquirer.prompt (
         [
             {
@@ -278,8 +278,6 @@ addEmployee = () => {
         })
     });
 }
-
-
 
 updateEmployee = () => {
     const employeeSql = `SELECT * FROM employee`;
